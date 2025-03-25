@@ -289,10 +289,12 @@ $code_trans = "CLT-" . date("mdy") . sprintf("-%02s", $id_trans);
                                                             $id = $_GET['idPick'];
                                                             $status = $_POST['status'];
                                                             $sqlDetail = mysqli_query($conn, "UPDATE trans_order SET order_status = '$status' WHERE id = '$id'");
+
+                                                            echo "<script>window.location.href='?page=transaction&pickup=success';</script>";
                                                         }
                                                         ?>
 
-                                                        <form action="?idPick=<?php echo $row['id'] ?>" method="post">
+                                                        <form action="?page=transaction&idPick=<?php echo $row['id'] ?>" method="post">
                                                             <input type="hidden" name="status" value="1">
                                                             <button type="submit" class="btn btn-primary" name="pickup">PICKUPss</button>
                                                         </form>
