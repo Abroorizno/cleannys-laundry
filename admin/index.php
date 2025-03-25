@@ -151,6 +151,80 @@ if (!isset($_SESSION["email"])) {
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <script src="../assets/js/jquery-3.7.1.min.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script> -->
+
+    <script>
+        $('#id_service').change(function() {
+            let id_service = $(this).val();
+            $.ajax({
+                url: "get-service.php?id_service=" + id_service,
+                method: "get",
+                dataType: "JSON",
+                success: function(res) {
+                    console.log(res);
+                    $('#service_price').val(res.data.price)
+                }
+            });
+        }); // end change
+
+        $('.add-row').click(function() {
+            let countDisplay = document.getElementById('countDisplay');
+            let currentCount = parseInt(countDisplay.value) || 0;
+            currentCount++;
+            countDisplay.value = currentCount;
+
+            let service_name = $('#id_service').find("option:selected").text();
+            let service_price = $('#service_price').val();
+
+            let newRow = "";
+            newRow += `<tr>`;
+            newRow += `<td> ${currentCount} </td>`;
+            newRow += `<td> ${service_name} <input class="form-control" name="serviceName[]" type="hidden" value="${service_name}"></td>`;
+            newRow += `<td> ${service_price.toLocaleString()} <input class="form-control" name="total[]" type="hidden" value="${service_price.toLocaleString()}"></input></td>`;
+            newRow += `<td><input class="form-control" name="qty[]" type="number"></input></td>`;
+            newRow += `<td><input class="form-control" name="notes[]" type="text"></input></td>`;
+            newRow += `<td><button class="btn btn-light btn-sm remove">REMOVE</button></td>`;
+            newRow += `</tr>`;
+
+            $('.table-order tbody').append(newRow);
+
+            $('.remove').click(function(event) {
+                event.preventDefault();
+                $(this).closest('tr').remove(); // remove the row
+            });
+        });
+    </script>
+
+    <script>
+        // Fungsi untuk mendapatkan tanggal hari ini dalam format YYYY-MM-DD
+        function formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2)
+                month = '0' + month;
+            if (day.length < 2)
+                day = '0' + day;
+
+            return [year, month, day].join('-');
+        }
+
+        // Mengatur nilai input tanggal dengan tanggal hari ini
+        document.getElementById('tgl_order').value = formatDate(new Date());
+    </script>
+
+    <script>
+        $('#amount').on('input', function() {
+            let total = parseFloat($('#total_transaksi').val()) || 0;
+            let amount = parseFloat($(this).val()) || 0;
+            let change = amount - total;
+            $('#change').val(change);
+        });
+    </script>
 </body>
 
 </html>

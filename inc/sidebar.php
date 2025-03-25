@@ -95,14 +95,14 @@
     </li>
 
     <!-- Form Transaction -->
-    <li class="menu-item active">
+    <li class="menu-item">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-detail"></i>
             <div data-i18n="Form Elements">Form Transaction</div>
         </a>
         <ul class="menu-sub">
             <li class="menu-item">
-                <a href="#" class="menu-link">
+                <a href="?page=transaction" class="menu-link">
                     <div data-i18n="Basic Inputs">Ongoing Transactions</div>
                 </a>
             </li>
