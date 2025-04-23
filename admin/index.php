@@ -168,12 +168,20 @@ if (!isset($_SESSION["email"])) {
                 }
             });
         }); // end change
+        console.log("id_service");
 
         $('.add-row').click(function() {
             let countDisplay = document.getElementById('countDisplay');
             let currentCount = parseInt(countDisplay.value) || 0;
             currentCount++;
             countDisplay.value = currentCount;
+
+            let select = document.getElementById("id_service");
+            let selectOpt = select.options[select.selectedIndex];
+            console.log(select);
+
+            let price = parseInt(selectOpt.getAttribute("data-price")) || 0;
+            console.log(price);
 
             let service_name = $('#id_service').find("option:selected").text();
             let service_price = $('#service_price').val();
@@ -182,7 +190,7 @@ if (!isset($_SESSION["email"])) {
             newRow += `<tr>`;
             newRow += `<td> ${currentCount} </td>`;
             newRow += `<td> ${service_name} <input class="form-control" name="serviceName[]" type="hidden" value="${service_name}"></td>`;
-            newRow += `<td> ${service_price.toLocaleString()} <input class="form-control" name="total[]" type="hidden" value="${service_price.toLocaleString()}"></input></td>`;
+            newRow += `<td> ${service_price.toLocaleString()} <input class="form-control" name="total[]" type="text" value="${price}"></input></td>`;
             newRow += `<td><input class="form-control" name="qty[]" type="number"></input></td>`;
             newRow += `<td><input class="form-control" name="notes[]" type="text"></input></td>`;
             newRow += `<td><button class="btn btn-light btn-sm remove">REMOVE</button></td>`;

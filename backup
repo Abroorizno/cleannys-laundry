@@ -249,3 +249,5 @@ if (isset($_GET['delete'])) {
                 </select>
             </div>
         </div>
+
+        SELECT trans_order_detail.*, trans_order_detail.id as detId, services.*, services.id as serID FROM trans_order_detail LEFT JOIN services on trans_order_detail.id_service = services.id WHERE trans_order_detail.id = '$row[id]'

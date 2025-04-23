@@ -28,7 +28,7 @@ if (isset($_POST['pay'])) {
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
-                        <h5 class="card-title text-primary">Payment Pages</h5>
+                        <h5 class="card-title text-primary">Transactions</h5>
                     </div>
                 </div>
                 <div class="card-body">
@@ -53,15 +53,18 @@ if (isset($_POST['pay'])) {
                                 </div>
                             </div>
                         </div>
-                        <div class=" row mb-3">
+                        <!-- <div class=" row mb-3">
                             <div class="col-2">
                                 <label for="">Order Status</label>
                             </div>
                             <div class="col-10">
-                                <!-- <input type="radio" name="order_status" id="order_status" value="0" class="form-" <?= isset($data['order_status']) && $data['order_status'] == 0 ? 'checked' : '' ?> /> Has Pickup -->
                                 <span style="margin-right: 10px;"></span>
                                 <input type="radio" name="order_status" id="order_status" value="1" <?= isset($data['order_status']) && $data['order_status'] == 1 ? 'checked' : '' ?> /> Has Pickup
                             </div>
+                        </div> -->
+                        <hr>
+                        <div class="card-title mb-4">
+                            <h5 class="text-primary">Payments</h5>
                         </div>
                         <div class="row mb-3">
                             <div class="col-2">

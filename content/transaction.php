@@ -63,26 +63,26 @@ if (isset($_GET['id'])) {
     }
 }
 
-if (isset($_POST['edit'])) {
-    $id = $_POST['id'];
-    $cust = $_POST['customer'];
-    $order_code = $_POST['code'];
-    $email = $_POST['email'];
+// if (isset($_POST['edit'])) {
+//     $id = $_POST['id'];
+//     $cust = $_POST['customer'];
+//     $order_code = $_POST['code'];
+//     $email = $_POST['email'];
 
-    if ($_POST['password']) {
-        $password = sha1($_POST['password']);
-    } else {
-        $password = $result['password'];
-    }
+//     if ($_POST['password']) {
+//         $password = sha1($_POST['password']);
+//     } else {
+//         $password = $result['password'];
+//     }
 
-    $sqlUpdate = mysqli_query($conn, "UPDATE users SET id_level = '$level', name = '$name', email = '$email', password = '$password' WHERE id = '$id'");
+//     $sqlUpdate = mysqli_query($conn, "UPDATE users SET id_level = '$level', name = '$name', email = '$email', password = '$password' WHERE id = '$id'");
 
-    if ($sqlUpdate) {
-        echo "<script>window.location.href='?page=transaction&update=success';</script>";
-    } else {
-        echo "<script>window.location.href='?page=transaction&update=failed';</script>";
-    }
-}
+//     if ($sqlUpdate) {
+//         echo "<script>window.location.href='?page=transaction&update=success';</script>";
+//     } else {
+//         echo "<script>window.location.href='?page=transaction&update=failed';</script>";
+//     }
+// }
 
 // if (isset($_POST['pickup'])) {
 //     $id = $_GET['id'];
@@ -171,13 +171,13 @@ $code_trans = "CLT-" . date("mdy") . sprintf("-%02s", $id_trans);
                                                         <label for="nameWithTitle" class="form-label">Services</label>
                                                     </div>
                                                     <div class="col-sm-12">
-                                                        <select name="services" id="id_service" class="form-select">
+                                                        <select name="service" id="id_service" class="form-select">
                                                             <option value="-" disabled selected>Pick a Services</option>
                                                             <?php
                                                             $sql = mysqli_query($conn, "SELECT * FROM services ORDER BY id");
                                                             $resultServ = mysqli_fetch_all($sql, MYSQLI_ASSOC);
                                                             foreach ($resultServ as $row) : ?>
-                                                                <option value=<?php echo $row['id'] ?>><?php echo $row['service_name'] ?></option>
+                                                                <option value="<?php echo $row['id'] ?>" data-price="<?php echo $row['price'] ?>"><?php echo $row['service_name'] ?></option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </div>
@@ -279,11 +279,17 @@ $code_trans = "CLT-" . date("mdy") . sprintf("-%02s", $id_trans);
                                                 <td><?php echo $no++ . '.' ?></td>
                                                 <td><?= $row['order_code'] ?></td>
                                                 <td><?= $row['customer_name'] ?></td>
-                                                <td><?= $row['order_status'] ?></td>
+                                                <td><?php if ($row['order_status'] == 2) {
+                                                        echo "Not Paid";
+                                                    } elseif ($row['order_status'] == 0) {
+                                                        echo "Has Paid, Waiting Pickup";
+                                                    } else {
+                                                        echo "Has Paid, Has Been Picked Up";
+                                                    } ?></td>
                                                 <td>
                                                     <!-- <button type="button" class="btn btn-dark" data-id="?page=customer&id<?= $row['id'] ?>" data-bs-toggle="modal" data-bs-target="#modalEdit"> EDIT </button> -->
 
-                                                    <?php if ($row['order_status'] == 0) { ?>
+                                                    <?php if ($row['order_status'] < 2) { ?>
                                                         <?php
                                                         if (isset($_POST['pickup'])) {
                                                             $id = $_GET['idPick'];
@@ -293,25 +299,26 @@ $code_trans = "CLT-" . date("mdy") . sprintf("-%02s", $id_trans);
                                                             echo "<script>window.location.href='?page=transaction&pickup=success';</script>";
                                                         }
                                                         ?>
-
                                                         <form action="?page=transaction&idPick=<?php echo $row['id'] ?>" method="post">
                                                             <input type="hidden" name="status" value="1">
-                                                            <button type="submit" class="btn btn-primary" name="pickup">PICKUPss</button>
+                                                            <button type="submit" class="btn btn-primary" name="pickup">PICKUP</button>
+                                                        <?php } elseif ($row['order_status'] == 2) { ?>
+                                                            <a href="?page=payment&idPay=<?= $row['id'] ?>" class="btn btn-primary">PAYMENT</a>
+                                                        <?php } else { ?>
+                                                            <button class="btn btn-primary" disabled>HAS PICKUP</button>
+                                                        <?php } ?>
+
+                                                        <a href="?page=transaction&detail=<?= $row['id'] ?>" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalDetail<?= $row['id'] ?>">DETAILS</a>
+
+                                                        <a href="?page=transaction&delete=<?php echo $row['id'] ?>" class="btn btn-light" onclick="return confirm('Are you sure you want to delete this customer?')">DELETE</a>
                                                         </form>
-                                                    <?php } elseif ($row['order_status'] == 2) { ?>
-                                                        <a href="?page=payment&idPay=<?= $row['id'] ?>" class="btn btn-primary">PAYMENT</a>
-                                                    <?php } else { ?>
-                                                        <a href="#" class="btn btn-primary">HAS PICKUP</a>
-                                                    <?php } ?>
-
-                                                    <a href="?page=transaction&detail=<?= $row['id'] ?>" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalEdit<?= $row['id'] ?>">DETAILS</a>
-
-                                                    <a href="?page=transaction&delete=<?php echo $row['id'] ?>" class="btn btn-light" onclick="return confirm('Are you sure you want to delete this customer?')">DELETE</a>
 
                                                 </td>
                                             </tbody>
 
-                                            <!-- <div class="modal fade" id="modalEdit<?php echo $row['id'] ?>" tabindex="-1" aria-hidden="true">
+
+                                            <!-- MODALS DETAILS -->
+                                            <div class="modal fade" id="modalDetail<?php echo $row['id'] ?>" tabindex="-1" aria-hidden="true">
                                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                                     <div class="modal-content">
 
@@ -319,7 +326,7 @@ $code_trans = "CLT-" . date("mdy") . sprintf("-%02s", $id_trans);
                                                             <input type="hidden" name="id" value="<?php echo $row['id'] ?>">
 
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title" id="modalCenterTitle">User Edit</h5>
+                                                                <h5 class="modal-title" id="modalCenterTitle">Transaction Details</h5>
                                                                 <button
                                                                     type="button"
                                                                     class="btn-close"
@@ -327,12 +334,12 @@ $code_trans = "CLT-" . date("mdy") . sprintf("-%02s", $id_trans);
                                                                     aria-label="Close"></button>
                                                             </div>
                                                             <div class="modal-body">
-                                                                <div class="row mb-3">
+                                                                <!-- <div class="row mb-3">
                                                                     <div class="col">
-                                                                        <label for="nameWithTitle" class="form-label">Level</label>
+                                                                        <label for="nameWithTitle" class="form-label">Code Transaction</label>
                                                                     </div>
                                                                     <div class="col-sm-12">
-                                                                        <select name="level" id="level" class="form-select">
+                                                                        <select name="code" id="code" class="form-select">
                                                                             <?php
                                                                             $sql = mysqli_query($conn, "SELECT * FROM level ORDER BY id");
                                                                             $resultSel = mysqli_fetch_all($sql, MYSQLI_ASSOC);
@@ -342,34 +349,66 @@ $code_trans = "CLT-" . date("mdy") . sprintf("-%02s", $id_trans);
                                                                         </select>
 
                                                                     </div>
-                                                                </div>
+                                                                </div> -->
                                                                 <div class="row mb-3">
                                                                     <div class="col">
-                                                                        <label for="nameWithTitle" class="form-label">Name</label>
+                                                                        <label for="nameWithTitle" class="form-label">Transaction Code</label>
                                                                     </div>
                                                                     <div class="col-sm-12">
-                                                                        <input type="text" name="nama" id="nama" class="form-control" value="<?php echo $row['name'] ?>" />
+                                                                        <input type="text" name="nama" id="nama" class="form-control" value="<?php echo $row['order_code'] ?>" />
                                                                     </div>
                                                                 </div>
                                                                 <div class="row mb-3">
                                                                     <div class="col-sm-3">
-                                                                        <label for="nameWithTitle" class="form-label">Email</label>
+                                                                        <label for="nameWithTitle" class="form-label">Name Customer</label>
                                                                     </div>
                                                                     <div class="col-sm-12">
-                                                                        <input type="text" name="email" id="email" class="form-control" value="<?php echo $row['email'] ?>" />
+                                                                        <input type="text" name="name" id="name" class="form-control" value="<?php echo $row['customer_name'] ?>" />
                                                                     </div>
                                                                 </div>
                                                                 <div class="row mb-3">
-                                                                    <div class="col">
-                                                                        <label for="nameWithTitle" class="form-label">Passwords</label>
+                                                                    <div class="col-sm-3">
+                                                                        <label for="nameWithTitle" class="form-label">Services</label>
                                                                     </div>
                                                                     <div class="col-sm-12">
-                                                                        <input type="password" name="password" id="password" class="form-control" value="<?php echo $row['password'] ?>" aria-describedby="password" />
+                                                                        <?php
+                                                                        $sql = mysqli_query($conn, "SELECT trans_order.*, trans_order.id AS trId, trans_order_detail.*, trans_order_detail.id AS detId, services.*, services.id AS serId FROM trans_order LEFT JOIN trans_order_detail ON trans_order_detail.id_order = trans_order.id LEFT JOIN services ON trans_order_detail.id_service = services.id WHERE trans_order.id = $row[id]");
+                                                                        $result = mysqli_fetch_all($sql, MYSQLI_ASSOC);
+                                                                        //  WHERE id = '$row[id_services]'");
+                                                                        // $result = mysqli_fetch_assoc($sql);
+                                                                        ?>
+                                                                        <?php foreach ($result as $rows) : ?>
+                                                                            <input type="text" name="name" id="name" class="form-control" value="<?= $rows['service_name'] ?>" />
+                                                                        <?php endforeach; ?>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-3">
+                                                                    <div class="col-sm-3">
+                                                                        <label for="nameWithTitle" class="form-label">Transaction Date</label>
+                                                                    </div>
+                                                                    <div class="col-sm-12">
+                                                                        <input type="text" name="name" id="name" class="form-control" value="<?php echo $row['order_date'] ?>" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-3">
+                                                                    <div class="col-sm-3">
+                                                                        <label for="nameWithTitle" class="form-label">Pick Up Date</label>
+                                                                    </div>
+                                                                    <div class="col-sm-12">
+                                                                        <input type="text" name="name" id="name" class="form-control" value="<?php echo $row['order_end_date'] ?>" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mb-3">
+                                                                    <div class="col-sm-3">
+                                                                        <label for="nameWithTitle" class="form-label">Total Transaction</label>
+                                                                    </div>
+                                                                    <div class="col-sm-12">
+                                                                        <input type="text" name="name" id="name" class="form-control" value="<?php echo number_format($row['total'], 0, ',', '.') ?>" />
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <button type="submit" name="edit" class="btn btn-dark">EDIT</button>
+                                                                <button type="submit" name="edit" class="btn btn-dark">PRINT</button>
                                                                 <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
                                                                     CLOSE
                                                                 </button>
@@ -377,7 +416,7 @@ $code_trans = "CLT-" . date("mdy") . sprintf("-%02s", $id_trans);
                                                         </form>
                                                     </div>
                                                 </div>
-                                            </div> -->
+                                            </div>
                                         <?php endforeach ?>
                                     </table>
                                 </div>
